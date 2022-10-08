@@ -8,7 +8,7 @@ def main():
     game_running = True
     while game_running:
         try:
-            question = quiz_brain.next_question()
+            quiz_brain.next_question()
         except StopIteration:
             break
 

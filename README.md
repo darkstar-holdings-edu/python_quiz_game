@@ -1,4 +1,4 @@
-# Pomodoro Time Management App
+# Python Quiz Game
 
 This is repo contains code that I generate while working on the [100 Days of Code](https://www.udemy.com/course/100-days-of-code/) udemy course for learning Python.
 
@@ -24,7 +24,7 @@ The things you need before installing the software.
 ```sh
 pipenv install --dev
 pipenv shell
-pre-commit --install
+pre-commit install
 ```
 
 ## Usage

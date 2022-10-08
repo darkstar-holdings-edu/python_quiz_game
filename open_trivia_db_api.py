@@ -18,11 +18,11 @@ class OpenTriviaDBApi:
         self.category_id = category_id
         self.question_type = API_QUESTION_TYPE
         self.question_count = question_count
-        self.questions = []
+        self.questions: list[dict] = []
 
     def get_questions(self) -> list[dict]:
         """Retrieves a list of questions"""
-        payload = {
+        payload: dict[str, str | int] = {
             "category": self.category_id,
             "amount": self.question_count,
             "type": self.question_type,

@@ -10,6 +10,8 @@ requests = "*"
 [dev-packages]
 black = "*"
 pre-commit = "*"
+types-requests = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.10"
