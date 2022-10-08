@@ -1,3 +1,13 @@
 {
-  "cSpell.words": ["Backrub"]
+  "cSpell.words": ["Backrub"],
+  "cSpell.ignoreWords": [
+    "Quizzler",
+    "borderwidth",
+    "columnspan",
+    "highlightbackground",
+    "highlightthickness",
+    "padx",
+    "pady",
+    "takefocus"
+  ]
 }

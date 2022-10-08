@@ -23,7 +23,6 @@ class OpenTriviaDBApi:
     def get_questions(self) -> list[dict]:
         """Retrieves a list of questions"""
         payload: dict[str, str | int] = {
-            "category": self.category_id,
             "amount": self.question_count,
             "type": self.question_type,
         }

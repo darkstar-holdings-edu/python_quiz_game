@@ -1,6 +1,7 @@
 import html
-from question_model import Question
+
 from open_trivia_db_api import OpenTriviaDBApi
+from question_model import Question
 
 
 class QuizBrain:
