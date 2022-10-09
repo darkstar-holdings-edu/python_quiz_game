@@ -1,0 +1,2 @@
+THEME_COLOR = "#375362"
+THEME_FONT_FACE = "Arial"

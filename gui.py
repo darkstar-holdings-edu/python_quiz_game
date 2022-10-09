@@ -1,95 +1,22 @@
-from tkinter import Button, Canvas, Label, PhotoImage, Tk
-from typing import Callable
+from tkinter import Tk
 
-THEME_COLOR = "#375362"
-THEME_FONT_FACE = "Arial"
-
-
-class GuiQuestionBox:
-    canvas: Canvas
-    text_id: int
-
-    def __init__(
-        self,
-        height: int,
-        width: int,
-    ) -> None:
-
-        canvas = Canvas(
-            height=height,
-            width=width,
-            background="white",
-            borderwidth=0,
-            highlightthickness=0,
-        )
-
-        self.text_id = canvas.create_text(
-            150,
-            125,
-            text="Default text.",
-            fill=THEME_COLOR,
-            font=(THEME_FONT_FACE, 20, "italic"),
-            width=width,
-        )
-
-        self.canvas = canvas
-
-    def grid(self, row: int, column: int, columnspan: int, pady: int) -> None:
-        self.canvas.grid(row=row, column=column, columnspan=columnspan, pady=pady)
-
-    def update(self, text: str) -> None:
-        self.canvas.itemconfig(self.text_id, text=text)
-
-
-class GuiScoreBox(Label):
-    score: int = 0
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.config(
-            foreground="white",
-            background=THEME_COLOR,
-            font=(THEME_FONT_FACE, 16, "normal"),
-        )
-
-        self.write()
-
-    def write(self) -> None:
-        self.config(text=f"Score: {self.score}")
-
-    def increment(self) -> None:
-        self.score += 1
-        self.write()
-
-
-class GuiButton(Button):
-    image: PhotoImage
-
-    def __init__(
-        self,
-        image_filename: str,
-        handler: Callable[[], None],
-    ) -> None:
-        super().__init__()
-
-        self.image = PhotoImage(file=image_filename)
-        self.config(
-            image=self.image,
-            command=handler,
-            borderwidth=0,
-            highlightthickness=0,
-        )
+from gui_theme import THEME_COLOR
+from gui_components import GuiButton, GuiQuestionBox, GuiScoreBoard
+from quiz_brain import QuizBrain
 
 
 class GUI:
+    brain: QuizBrain
+
     window: Tk
-    score_box: GuiScoreBox
+    score_box: GuiScoreBoard
     question_box: GuiQuestionBox
     btn_true: GuiButton
     btn_false: GuiButton
 
     def __init__(self) -> None:
+        self.brain = QuizBrain()
+
         self.window = Tk()
         self.window.title("Quizzler")
         self.window.config(
@@ -98,7 +25,7 @@ class GUI:
             background=THEME_COLOR,
         )
 
-        self.score_box = GuiScoreBox()
+        self.score_box = GuiScoreBoard(total_questions=self.brain.total_questions())
         self.score_box.grid(row=0, column=1)
 
         self.question_box = GuiQuestionBox(height=250, width=300)
@@ -116,11 +43,31 @@ class GUI:
         )
         self.btn_false.grid(row=2, column=1)
 
+        self.get_next_question()
+
         self.window.mainloop()
 
-    def btn_true_handler(self):
-        print("True")
-        self.score_box.increment()
+    def get_next_question(self) -> None:
+        self.question_box.update_background("white")
+        if self.brain.has_more_questions():
+            self.question_box.update_text(self.brain.next_question())
+        else:
+            self.question_box.update_text("Game Over!")
+            self.btn_true.config(state="disabled")
+            self.btn_false.config(state="disabled")
 
-    def btn_false_handler(self):
-        print("False")
+    def check_answer(self, response) -> None:
+        if self.brain.check_answer(response):
+            self.score_box.write(self.brain.user_score)
+            self.question_box.update_background("green")
+
+        else:
+            self.question_box.update_background("red")
+
+        self.window.after(1000, self.get_next_question)
+
+    def btn_true_handler(self) -> None:
+        self.check_answer("true")
+
+    def btn_false_handler(self) -> None:
+        self.check_answer("false")

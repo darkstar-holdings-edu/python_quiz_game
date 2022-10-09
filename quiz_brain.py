@@ -1,20 +1,21 @@
 import html
 
-from open_trivia_db_api import OpenTriviaDBApi
+from api import OpenTriviaDBApi
 from question_model import Question
 
 
 class QuizBrain:
-    """Handles the Quiz Game logic"""
+    question_bank: list[Question]
+    question_index: int
+    user_score: int
 
     def __init__(self, num_questions: int = 10, category_id: int = 9) -> None:
-        self.total_questions = num_questions
-        self.question_category_id = category_id
         self.question_bank = []
         self.question_index = -1
         self.user_score = 0
+        self.current_question: Question
 
-        api = OpenTriviaDBApi(category_id=category_id, question_count=num_questions)
+        api = OpenTriviaDBApi(question_count=num_questions)
         for record in api.get_questions():
             question = Question(
                 text=html.unescape(record["question"]),
@@ -26,18 +27,25 @@ class QuizBrain:
 
             self.question_bank.append(question)
 
-    def next_question(self) -> None:
+    def total_questions(self) -> int:
+        return len(self.question_bank)
+
+    def has_more_questions(self) -> bool:
+        return self.question_index < len(self.question_bank) - 1
+
+    def next_question(self) -> str:
         self.question_index += 1
         if self.question_index >= len(self.question_bank):
             raise StopIteration("There are no more questions in the question bank")
 
-        question: Question = self.question_bank[self.question_index]
-        response = question.ask(self.question_index + 1)
-        if question.check_answer(response):
-            self.user_score += 1
-            print("That's right!")
-        else:
-            print("That's wrong.")
+        return (
+            f"Q{self.question_index + 1}. "
+            f"{self.question_bank[self.question_index].text}"
+        )
 
-        print(f"The correct answer was: {question.correct_answer}")
-        print(f"Your current score is: {self.user_score}/{self.question_index + 1}")
+    def check_answer(self, response: str) -> bool:
+        if response == self.question_bank[self.question_index].correct_answer.lower():
+            self.user_score += 1
+            return True
+
+        return False

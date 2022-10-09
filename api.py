@@ -1,27 +1,37 @@
+from typing import TypedDict
 import requests
 
 API_URL = "https://opentdb.com/api.php"
-API_CATEGORY = 9
 API_QUESTION_TYPE = "boolean"
 API_QUESTION_COUNT = 10
 
 
-class OpenTriviaDBApi:
-    """Handles API Calls to the Open Trivial Database."""
+class ApiResults(TypedDict):
+    category: str
+    type: str
+    difficulty: str
+    question: str
+    correct_answer: str
+    incorrect_answers: list[str]
 
-    def __init__(
-        self,
-        category_id: int = API_CATEGORY,
-        question_count: int = API_QUESTION_COUNT,
-    ) -> None:
+
+class ApiResponse(TypedDict):
+    response_code: int
+    results: list[ApiResults]
+    ...
+
+
+class OpenTriviaDBApi:
+    question_type: str
+    question_count: int
+
+    def __init__(self, question_count: int = API_QUESTION_COUNT) -> None:
         self.url = API_URL
-        self.category_id = category_id
         self.question_type = API_QUESTION_TYPE
         self.question_count = question_count
         self.questions: list[dict] = []
 
-    def get_questions(self) -> list[dict]:
-        """Retrieves a list of questions"""
+    def get_questions(self) -> list[ApiResults]:
         payload: dict[str, str | int] = {
             "amount": self.question_count,
             "type": self.question_type,
@@ -30,5 +40,5 @@ class OpenTriviaDBApi:
         response = requests.get(self.url, params=payload)
         response.raise_for_status()
 
-        json = response.json()
+        json: ApiResponse = response.json()
         return json["results"]
